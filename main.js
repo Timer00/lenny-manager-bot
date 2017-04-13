@@ -29,7 +29,12 @@ bot.on('message', message => {
         }
     }
 
-    const masterlenny = "＜￣｀ヽ、　　　　　　　／￣>\n　ゝ、　　＼　／⌒ヽ,ノ 　/´\n　　　ゝ、　`（ ( ͡° ͜ʖ ͡°) ／\n　　 　　>　 　 　,ノ\n　　　　　∠_,,,/´”";
+    const masterlenny =
+        "＜￣｀ヽ、　　　　　　　／￣>\n" +
+        "　ゝ、　　＼　／⌒ヽ,ノ 　/´\n" +
+        "　　　ゝ、　`（ ( ͡° ͜ʖ ͡°) ／\n" +
+        "　　 　　>　 　 　,ノ\n" +
+        "　　　　　∠_,,,/´”";
     if (command === 'masterLenny') {
         message.channel.sendMessage(masterlenny);
     }
