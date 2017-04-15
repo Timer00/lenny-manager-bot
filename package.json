@@ -7,11 +7,17 @@
     "node": "6.1.0"
   },
   "dependencies": {
-    "discord.js": "10.0.1"
+    "discord.js": "^11.0.0"
   },
   "scripts": {
-    "start": "node main.js"
+    "start": "node main.js",
+    "lint": "eslint .",
+    "format": "prettier --trailing-comma es5 --write \"./*.js\""
   },
   "author": "Timer00",
-  "keywords": []
+  "keywords": [],
+  "devDependencies": {
+    "eslint": "^3.19.0",
+    "prettier": "^1.1.0"
+  }
 }
