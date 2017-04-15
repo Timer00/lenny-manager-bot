@@ -1,18 +1,19 @@
-const Discord = require('discord.js');
+const Discord = require("discord.js");
 const bot = new Discord.Client();
-const config = require('./config.json');
+const config = require("./config.json");
 //const token = process.env["LENNY_TOKEN"];
 const token = "MjUwMTA2NjU2MzgwMTU3OTYy.C9CamA.Q9efSclj9BkqSKWO9oD0T3kGSyk";
+const unindent = require("./util").unindent;
 
-bot.on('ready', () => {
-    console.log(`Ready to deploy lennies everywhere`);
+bot.on("ready", () => {
+    console.log("Ready to deploy lennies everywhere");
 });
 
-bot.on('error', e => {
+bot.on("error", e => {
     console.error(e);
 });
 
-bot.on('message', message => {
+bot.on("message", message => {
     const prefix = config.prefix;
 
     if (!message.content.startsWith(prefix)) return;
@@ -23,8 +24,8 @@ bot.on('message', message => {
 
     const lenny = "( ͡° ͜ʖ ͡°)";
     const lennylenny = "(͡ ͡° ͜ つ ͡͡°)";
-    if (command === 'lenny') {
-        if (Math.ceil(Math.random()*50) == 1){
+    if (command === "lenny") {
+        if (Math.ceil(Math.random() * 50) == 1) {
             message.channel.sendMessage(lennylenny);
         } else {
             message.channel.sendMessage(lenny);
@@ -37,46 +38,46 @@ bot.on('message', message => {
         "　　　ゝ、　`（ ( ͡° ͜ʖ ͡°) ／\n" +
         "　　 　　>　 　 　,ノ\n" +
         "　　　　　∠_,,,/´”";
-    if (command === 'masterLenny') {
+    if (command === "masterLenny") {
         message.channel.sendMessage(masterlenny);
     }
 
     const matchmaking = message.guild.roles.find("name", "matchmaking");
-    if (command == "role"){
-        if (message.content.split(" ")[1] == "matchmaking"){
+    if (command == "role") {
+        if (message.content.split(" ")[1] == "matchmaking") {
             message.member.addRole(matchmaking);
         }
     }
-    if (command == "!role"){
-        if (message.content.split(" ")[1] == "matchmaking"){
+    if (command == "!role") {
+        if (message.content.split(" ")[1] == "matchmaking") {
             message.member.removeRole(matchmaking);
         }
     }
 
-    if (message.member.roles.has(mod.id)){
+    if (message.member.roles.has(mod.id)) {
         if (command === "say") {
             message.delete();
             send(message.content.split(" ")[1]);
         }
 
-        if (command == "mute"){
+        if (command == "mute") {
             const time = message.content.slice(5).split(" ")[2];
             const user = message.mentions.users.first();
             message.channel.overwritePermissions(user, {
-                SEND_MESSAGES: false
+                SEND_MESSAGES: false,
             });
-            setTimeout(()=>{
+            setTimeout(() => {
                 message.channel.overwritePermissions(user, {
-                    SEND_MESSAGES: true
+                    SEND_MESSAGES: true,
                 });
-            },time)
+            }, time);
         }
 
-        if (command == "unmute"){
+        if (command == "unmute") {
             const time = message.content.slice(5).split(" ")[2];
             const user = message.mentions.users.first();
             message.channel.overwritePermissions(user, {
-                SEND_MESSAGES: true
+                SEND_MESSAGES: true,
             });
         }
     }
@@ -90,7 +91,10 @@ bot.on('message', message => {
                 const code = message.content.slice(5);
                 eval(code).catch(console.error);
             } catch (error) {
-                if (error != "TypeError: Cannot read property 'catch' of undefined") {
+                if (
+                    error !=
+                    "TypeError: Cannot read property 'catch' of undefined"
+                ) {
                     message.channel.sendMessage(error);
                 }
             }
@@ -98,10 +102,19 @@ bot.on('message', message => {
     }
 });
 
-bot.on('guildMemberAdd', member => {
-    const role = member.guild.roles.find('name', 'Fan');
+bot.on("guildMemberAdd", member => {
+    // Add Fan role
+    const role = member.guild.roles.find("name", "Fan");
     if (role) {
         member.addRole(role);
+    }
+    // Welcome text
+    const channel = member.guild.channels.find("name", "general");
+    if (channel) {
+        channel.sendMessage(
+            unindent`Welcome, ${member}!
+                |Please check #main-info, #faq and #updates for the latest info on how to get started playing Magicka: Wizard Wars!`
+        );
     }
 });
 
