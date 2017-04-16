@@ -3,7 +3,7 @@ const bot = new Discord.Client();
 const config = require("./config.json");
 //const token = process.env["LENNY_TOKEN"];
 const token = "MjUwMTA2NjU2MzgwMTU3OTYy.C9CamA.Q9efSclj9BkqSKWO9oD0T3kGSyk";
-const unindent = require("./util").unindent;
+const { parseTime, unindent } = require("./util");
 
 bot.on("ready", () => {
     console.log("Ready to deploy lennies everywhere");
@@ -61,7 +61,7 @@ bot.on("message", message => {
         }
 
         if (command == "mute") {
-            const time = message.content.slice(5).split(" ")[2];
+            const time = parseTime(message.content.slice(5).split(" ")[2]);
             const user = message.mentions.users.first();
             message.channel.overwritePermissions(user, {
                 SEND_MESSAGES: false,
@@ -74,7 +74,6 @@ bot.on("message", message => {
         }
 
         if (command == "unmute") {
-            const time = message.content.slice(5).split(" ")[2];
             const user = message.mentions.users.first();
             message.channel.overwritePermissions(user, {
                 SEND_MESSAGES: true,
