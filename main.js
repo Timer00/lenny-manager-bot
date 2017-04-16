@@ -1,7 +1,8 @@
 const Discord = require('discord.js');
 const bot = new Discord.Client();
 const config = require('./config.json');
-const token = process.env["LENNY_TOKEN"];
+//const token = process.env["LENNY_TOKEN"];
+const token = "MjUwMTA2NjU2MzgwMTU3OTYy.C9CamA.Q9efSclj9BkqSKWO9oD0T3kGSyk";
 
 bot.on('ready', () => {
     console.log(`Ready to deploy lennies everywhere`);
@@ -40,10 +41,22 @@ bot.on('message', message => {
         message.channel.sendMessage(masterlenny);
     }
 
+    const matchmaking = message.guild.roles.find("name", "matchmaking");
+    if (command == "role"){
+        if (message.content.split(" ")[1] == "matchmaking"){
+            message.member.addRole(matchmaking);
+        }
+    }
+    if (command == "!role"){
+        if (message.content.split(" ")[1] == "matchmaking"){
+            message.member.removeRole(matchmaking);
+        }
+    }
+
     if (message.member.roles.has(mod.id)){
         if (command === "say") {
             message.delete();
-            message.channel.sendMessage(message.content.slice(4));
+            send(message.content.split(" ")[1]);
         }
 
         if (command == "mute"){
