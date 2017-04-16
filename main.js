@@ -2,7 +2,7 @@ const Discord = require('discord.js');
 const bot = new Discord.Client();
 const config = require('./config.json');
 const secret = require('./secret.json');
-const token = process.env["LENNY_TOKEN"] || secret.token;
+const token = process.env["LENNY_TOKEN"];
 
 bot.on('ready', () => {
     console.log(`Ready to deploy lennies everywhere`);
