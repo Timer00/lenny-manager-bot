@@ -1,7 +1,8 @@
 const Discord = require('discord.js');
 const bot = new Discord.Client();
 const config = require('./config.json');
-
+const secret = require('./secret.json');
+const token = process.env["LENNY_TOKEN"] || secret.token;
 
 bot.on('ready', () => {
     console.log(`Ready to deploy lennies everywhere`);
@@ -18,6 +19,7 @@ bot.on('message', message => {
     if (message.author.bot) return;
 
     const command = message.content.split(" ")[0].slice(prefix.length);
+    const mod = message.guild.roles.find("name", "Mod");
 
     const lenny = "( ͡° ͜ʖ ͡°)";
     const lennylenny = "(͡ ͡° ͜ つ ͡͡°)";
@@ -39,9 +41,32 @@ bot.on('message', message => {
         message.channel.sendMessage(masterlenny);
     }
 
-    if (command === "say") {
-        message.delete();
-        message.channel.sendMessage(message.content.slice(4));
+    if (message.member.roles.has(mod.id)){
+        if (command === "say") {
+            message.delete();
+            message.channel.sendMessage(message.content.slice(4));
+        }
+
+        if (command == "mute"){
+            const time = message.content.slice(5).split(" ")[2];
+            const user = message.mentions.users.first();
+            message.channel.overwritePermissions(user, {
+                SEND_MESSAGES: false
+            });
+            setTimeout(()=>{
+                message.channel.overwritePermissions(user, {
+                    SEND_MESSAGES: true
+                });
+            },time)
+        }
+
+        if (command == "unmute"){
+            const time = message.content.slice(5).split(" ")[2];
+            const user = message.mentions.users.first();
+            message.channel.overwritePermissions(user, {
+                SEND_MESSAGES: true
+            });
+        }
     }
 
     function send(m) {
@@ -68,4 +93,4 @@ bot.on('guildMemberAdd', member => {
     }
 });
 
-bot.login(config.token);
+bot.login(token);
