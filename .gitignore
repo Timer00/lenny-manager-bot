@@ -7,3 +7,4 @@ npm-debug.log
 
 # secrets
 /secret.json
+.env
