@@ -18,8 +18,10 @@ bot.on("message", message => {
     if (!message.content.startsWith(prefix)) return;
     if (message.author.bot) return;
 
+    const parameters = message.content.split(" ");
     const command = message.content.split(" ")[0].slice(prefix.length);
     const mod = message.guild.roles.find("name", "Mod");
+    const owner = message.guild.roles.find("name", "Owner");
 
     const lenny = "( ͡° ͜ʖ ͡°)";
     const lennylenny = "(͡ ͡° ͜ つ ͡͡°)";
@@ -41,14 +43,30 @@ bot.on("message", message => {
         message.channel.sendMessage(masterlenny);
     }
 
+    function findRole(name){
+        return message.guild.roles.find("name", name);
+    }
+
     const matchmaking = message.guild.roles.find("name", "matchmaking");
     if (command == "role") {
-        if (message.content.split(" ")[1] == "matchmaking") {
+        if (parameters[1].startsWith("@")){
+            if (message.member.roles.has(owner.id)) {
+                const user = message.mentions.users.first();
+                user.addRole(findRole(parameters[2]));
+            }
+        }
+        if (parameters[1] == "matchmaking") {
             message.member.addRole(matchmaking);
         }
     }
     if (command == "!role") {
-        if (message.content.split(" ")[1] == "matchmaking") {
+        if (parameters[1].startsWith("@")){
+            if (message.member.roles.has(owner.id)) {
+                const user = message.mentions.users.first();
+                user.removeRole(findRole(parameters[2]));
+            }
+        }
+        if (parameters[1] == "matchmaking") {
             message.member.removeRole(matchmaking);
         }
     }
@@ -63,11 +81,11 @@ bot.on("message", message => {
             const time = parseTime(message.content.slice(5).split(" ")[2]);
             const user = message.mentions.users.first();
             message.channel.overwritePermissions(user, {
-                SEND_MESSAGES: false,
+                SEND_MESSAGES: false
             });
             setTimeout(() => {
                 message.channel.overwritePermissions(user, {
-                    SEND_MESSAGES: true,
+                    SEND_MESSAGES: true
                 });
             }, time);
         }
@@ -75,7 +93,7 @@ bot.on("message", message => {
         if (command == "unmute") {
             const user = message.mentions.users.first();
             message.channel.overwritePermissions(user, {
-                SEND_MESSAGES: true,
+                SEND_MESSAGES: true
             });
         }
     }
