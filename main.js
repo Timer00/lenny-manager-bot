@@ -1,7 +1,8 @@
 const Discord = require("discord.js");
 const bot = new Discord.Client();
 const config = require("./config.json");
-const token = process.env["LENNY_TOKEN"];
+//const token = process.env["LENNY_TOKEN"];
+const token = require("./secret.json").token;
 const { parseTime, unindent } = require("./util");
 
 bot.on("ready", () => {
@@ -19,7 +20,13 @@ bot.on("message", message => {
     if (message.author.bot) return;
 
     const parameters = message.content.split(" ");
-    const command = message.content.split(" ")[0].slice(prefix.length);
+    const command = parameters[0].slice(prefix.length);
+
+    const roles = {
+        mod: findRole("Mod"),
+        owner: findRole("Owner"),
+        techSupport: findRole("TechSupport")
+    };
     const mod = message.guild.roles.find("name", "Mod");
     const owner = message.guild.roles.find("name", "Owner");
 
@@ -46,13 +53,22 @@ bot.on("message", message => {
     function findRole(name){
         return message.guild.roles.find("name", name);
     }
+    function hasRole(role){
+        return message.member.roles.has(role);
+    }
 
     const matchmaking = message.guild.roles.find("name", "matchmaking");
     if (command == "role") {
-        if (parameters[1].startsWith("@")){
-            if (message.member.roles.has(owner.id)) {
+        if (parameters[1].startsWith("<@")){
+            if (hasRole(roles.owner.id)) {
                 const user = message.mentions.users.first();
-                user.addRole(findRole(parameters[2]));
+                message.guild.members.get(user.id).addRole(findRole(parameters[2]));
+            }
+            if (hasRole(roles.techSupport.id)){
+                const user = message.mentions.users.first();
+                if (/*(parameters[2] == "newbie") ||*/ (parameters[2] == "TechSupport")) {
+                    message.guild.members.get(user.id).addRole(findRole(parameters[2]));
+                }
             }
         }
         if (parameters[1] == "matchmaking") {
@@ -60,10 +76,16 @@ bot.on("message", message => {
         }
     }
     if (command == "!role") {
-        if (parameters[1].startsWith("@")){
-            if (message.member.roles.has(owner.id)) {
+        if (parameters[1].startsWith("<@")){
+            if (hasRole(roles.owner.id)) {
                 const user = message.mentions.users.first();
-                user.removeRole(findRole(parameters[2]));
+                message.guild.members.get(user.id).removeRole(findRole(parameters[2]));
+            }
+            if (hasRole(roles.techSupport.id)){
+                const user = message.mentions.users.first();
+                if (/*(parameters[2] == "newbie") ||*/ (parameters[2] == "TechSupport")) {
+                    message.guild.members.get(user.id).removeRole(findRole(parameters[2]));
+                }
             }
         }
         if (parameters[1] == "matchmaking") {
@@ -71,10 +93,10 @@ bot.on("message", message => {
         }
     }
 
-    if (message.member.roles.has(mod.id)) {
+    if (hasRole(roles.mod.id)) {
         if (command === "say") {
             message.delete();
-            send(message.content.split(" ")[1]);
+            send(parameters[1]);
         }
 
         if (command == "mute") {
@@ -121,15 +143,22 @@ bot.on("message", message => {
 bot.on("guildMemberAdd", member => {
     // Add Fan role
     const role = member.guild.roles.find("name", "Fan");
+    const newbie = member.guild.roles.find("name", "newbie");
     if (role) {
         member.addRole(role);
+        member.addRole(newbie);
     }
+
+    setTimeout(()=>{
+       member.removeRole(newbie);
+    },5*60000);
+
     // Welcome text
     const channel = member.guild.channels.find("name", "general");
     if (channel) {
         channel.sendMessage(
             unindent`Welcome, ${member}!
-                |Please check #main-info, #faq and #updates for the latest info on how to get started playing Magicka: Wizard Wars!`
+                |You will be muted for 5 minutes on all channels except #help, feel free to ask questions there, please use this time to read #information , #faq and #updates .`
         );
     }
 });
