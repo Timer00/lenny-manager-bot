@@ -14,7 +14,7 @@
     "start": "node main.js",
     "start-env": "nf start",
     "lint": "eslint .",
-    "format": "prettier --trailing-comma es5 --tab-width 4 --write \"./*.js\""
+    "format": "prettier --tab-width 4 --write \"./*.js\""
   },
   "author": "Timer00",
   "keywords": [],

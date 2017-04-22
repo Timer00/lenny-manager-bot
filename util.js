@@ -36,7 +36,7 @@ function parseTime(time) {
         // seconds
         { pattern: /(\d*\.?\d*)s/i, multiplier: 1e3 },
         // milliseconds
-        { pattern: /(\d*\.?\d*)\b/i, multiplier: 1 },
+        { pattern: /(\d*\.?\d*)\b/i, multiplier: 1 }
     ];
 
     return timeUnits.reduce((duration, { pattern, multiplier }) => {
@@ -52,5 +52,5 @@ function parseTime(time) {
 
 module.exports = {
     unindent,
-    parseTime,
+    parseTime
 };

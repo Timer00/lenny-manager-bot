@@ -1,9 +1,11 @@
 const Discord = require("discord.js");
-const bot = new Discord.Client();
 const config = require("./config.json");
+const CommandList = require("./command-list");
+const { parseTime, unindent } = require("./util");
 const token = process.env["LENNY_TOKEN"];
 //const token = require("./secret.json").token;
-const { parseTime, unindent } = require("./util");
+const bot = new Discord.Client();
+const commands = new CommandList(config.prefix);
 
 bot.on("ready", () => {
     console.log("Ready to deploy lennies everywhere");
@@ -13,129 +15,110 @@ bot.on("error", e => {
     console.error(e);
 });
 
-bot.on("message", message => {
-    const prefix = config.prefix;
+bot.on("message", message => commands.run(message));
 
-    if (!message.content.startsWith(prefix)) return;
-    if (message.author.bot) return;
-
-    const parameters = message.content.split(" ");
-    const command = parameters[0].slice(prefix.length);
-
-    const roles = {
-        mod: findRole("Mod"),
-        owner: findRole("Owner"),
-        techSupport: findRole("TechSupport")
-    };
-    const mod = message.guild.roles.find("name", "Mod");
-    const owner = message.guild.roles.find("name", "Owner");
-
-    const lenny = "( ͡° ͜ʖ ͡°)";
-    const lennylenny = "(͡ ͡° ͜ つ ͡͡°)";
-    if (command === "lenny") {
-        if (Math.ceil(Math.random() * 50) == 1) {
-            message.channel.sendMessage(lennylenny);
-        } else {
-            message.channel.sendMessage(lenny);
-        }
+commands.add("lenny", ({ message }) => {
+    if (Math.ceil(Math.random() * 50) == 1) {
+        message.channel.sendMessage("(͡ ͡° ͜ つ ͡͡°)");
+    } else {
+        message.channel.sendMessage("( ͡° ͜ʖ ͡°)");
     }
+});
 
-    const masterlenny =
+commands.add("masterLenny", ({ message }) => {
+    message.channel.sendMessage(
         "＜￣｀ヽ、　　　　　　　／￣>\n" +
-        "　ゝ、　　＼　／⌒ヽ,ノ 　/´\n" +
-        "　　　ゝ、　`（ ( ͡° ͜ʖ ͡°) ／\n" +
-        "　　 　　>　 　 　,ノ\n" +
-        "　　　　　∠_,,,/´”";
-    if (command === "masterLenny") {
-        message.channel.sendMessage(masterlenny);
-    }
+            "　ゝ、　　＼　／⌒ヽ,ノ 　/´\n" +
+            "　　　ゝ、　`（ ( ͡° ͜ʖ ͡°) ／\n" +
+            "　　 　　>　 　 　,ノ\n" +
+            "　　　　　∠_,,,/´”"
+    );
+});
 
-    function findRole(name){
-        return message.guild.roles.find("name", name);
-    }
-    function hasRole(role){
-        return message.member.roles.has(role);
-    }
-
-    const matchmaking = message.guild.roles.find("name", "matchmaking");
-    if (command == "role") {
-        if (parameters[1].startsWith("<@")){
-            if (hasRole(roles.owner.id)) {
-                const user = message.mentions.users.first();
-                message.guild.members.get(user.id).addRole(findRole(parameters[2]));
-            }
-            if (hasRole(roles.techSupport.id)){
-                const user = message.mentions.users.first();
-                if (/*(parameters[2] == "newbie") ||*/ (parameters[2] == "TechSupport")) {
-                    message.guild.members.get(user.id).addRole(findRole(parameters[2]));
-                }
-            }
-        }
-        if (parameters[1] == "matchmaking") {
-            message.member.addRole(matchmaking);
-        }
-    }
-    if (command == "!role") {
-        if (parameters[1].startsWith("<@")){
-            if (hasRole(roles.owner.id)) {
-                const user = message.mentions.users.first();
-                message.guild.members.get(user.id).removeRole(findRole(parameters[2]));
-            }
-            if (hasRole(roles.techSupport.id)){
-                const user = message.mentions.users.first();
-                if (/*(parameters[2] == "newbie") ||*/ (parameters[2] == "TechSupport")) {
-                    message.guild.members.get(user.id).removeRole(findRole(parameters[2]));
-                }
-            }
-        }
-        if (parameters[1] == "matchmaking") {
-            message.member.removeRole(matchmaking);
-        }
-    }
-
-    if (hasRole(roles.mod.id)) {
-        if (command === "say") {
-            message.delete();
-            send(parameters[1]);
-        }
-
-        if (command == "mute") {
-            const time = parseTime(message.content.slice(5).split(" ")[2]);
+commands.add("role", ({ message, parameters, hasRole, findRole }) => {
+    if (parameters[1].startsWith("<@")) {
+        if (hasRole("Owner")) {
             const user = message.mentions.users.first();
-            message.channel.overwritePermissions(user, {
-                SEND_MESSAGES: false
-            });
-            setTimeout(() => {
-                message.channel.overwritePermissions(user, {
-                    SEND_MESSAGES: true
-                });
-            }, time);
+            message.guild.members.get(user.id).addRole(findRole(parameters[2]));
         }
-
-        if (command == "unmute") {
+        if (hasRole("TechSupport")) {
             const user = message.mentions.users.first();
+            if (parameters[2] == "TechSupport") {
+                message.guild.members
+                    .get(user.id)
+                    .addRole(findRole(parameters[2]));
+            }
+        }
+    }
+    if (parameters[1] == "matchmaking") {
+        message.member.addRole("matchmaking");
+    }
+});
+
+commands.add("!role", ({ message, parameters, hasRole, findRole }) => {
+    if (parameters[1].startsWith("<@")) {
+        if (hasRole("Owner")) {
+            const user = message.mentions.users.first();
+            message.guild.members
+                .get(user.id)
+                .removeRole(findRole(parameters[2]));
+        }
+        if (hasRole("TechSupport")) {
+            const user = message.mentions.users.first();
+            if (parameters[2] == "TechSupport") {
+                message.guild.members
+                    .get(user.id)
+                    .removeRole(findRole(parameters[2]));
+            }
+        }
+    }
+    if (parameters[1] == "matchmaking") {
+        message.member.removeRole("matchmaking");
+    }
+});
+
+commands.add("say", ({ message, parameters, hasRole }) => {
+    if (hasRole("Mod")) {
+        message.delete();
+        message.channel.sendMessage(parameters[1]);
+    }
+});
+
+commands.add("mute", ({ message, hasRole }) => {
+    if (hasRole("Mod")) {
+        const time = parseTime(message.content.slice(5).split(" ")[2]);
+        const user = message.mentions.users.first();
+        message.channel.overwritePermissions(user, {
+            SEND_MESSAGES: false
+        });
+        setTimeout(() => {
             message.channel.overwritePermissions(user, {
                 SEND_MESSAGES: true
             });
-        }
+        }, time);
     }
+});
 
-    function send(m) {
-        message.channel.sendMessage(m);
+commands.add("unmute", ({ message, hasRole }) => {
+    if (hasRole("Mod")) {
+        const user = message.mentions.users.first();
+        message.channel.overwritePermissions(user, {
+            SEND_MESSAGES: true
+        });
     }
-    if (command === "eval") {
-        if (message.author.id === "192283538110808064") {
-            try {
-                const code = message.content.slice(5);
-                eval(code).catch(console.error);
-            } catch (error) {
-                if (
-                    error !=
-                    "TypeError: Cannot read property 'catch' of undefined"
-                ) {
-                    message.channel.sendMessage(error);
-                }
+});
+
+commands.add("eval", ({ message }) => {
+    const send = m => message.channel.sendMessage(m);
+    if (message.author.id === "192283538110808064") {
+        try {
+            const code = message.content.slice(5);
+            const result = eval(code);
+            if (result.catch) {
+                result.catch(err => send(err));
             }
+        } catch (error) {
+            send(error);
         }
     }
 });
@@ -149,9 +132,9 @@ bot.on("guildMemberAdd", member => {
         member.addRole(newbie);
     }
 
-    setTimeout(()=>{
-       member.removeRole(newbie);
-    },5*60000);
+    setTimeout(() => {
+        member.removeRole(newbie);
+    }, 5 * 60000);
 
     // Welcome text
     const channel = member.guild.channels.find("name", "general");
