@@ -3,7 +3,7 @@ const bot = new Discord.Client();
 const config = require("./config.json");
 const token = process.env["LENNY_TOKEN"];
 //const token = require("./secret.json").token;
-const { parseTime, unindent } = require("./util");
+const {parseTime, unindent} = require("./util");
 
 bot.on("ready", () => {
     console.log("Ready to deploy lennies everywhere");
@@ -47,24 +47,26 @@ bot.on("message", message => {
         "　　 　　>　 　 　,ノ\n" +
         "　　　　　∠_,,,/´”";
     if (command === "masterLenny") {
+        message.delete();
         message.channel.sendMessage(masterlenny);
     }
 
-    function findRole(name){
+    function findRole(name) {
         return message.guild.roles.find("name", name);
     }
-    function hasRole(role){
+
+    function hasRole(role) {
         return message.member.roles.has(role);
     }
 
     const matchmaking = message.guild.roles.find("name", "matchmaking");
     if (command == "role") {
-        if (parameters[1].startsWith("<@")){
+        if (parameters[1].startsWith("<@")) {
             if (hasRole(roles.owner.id)) {
                 const user = message.mentions.users.first();
                 message.guild.members.get(user.id).addRole(findRole(parameters[2]));
             }
-            if (hasRole(roles.techSupport.id)){
+            if (hasRole(roles.techSupport.id)) {
                 const user = message.mentions.users.first();
                 if (/*(parameters[2] == "newbie") ||*/ (parameters[2] == "TechSupport")) {
                     message.guild.members.get(user.id).addRole(findRole(parameters[2]));
@@ -76,12 +78,12 @@ bot.on("message", message => {
         }
     }
     if (command == "!role") {
-        if (parameters[1].startsWith("<@")){
+        if (parameters[1].startsWith("<@")) {
             if (hasRole(roles.owner.id)) {
                 const user = message.mentions.users.first();
                 message.guild.members.get(user.id).removeRole(findRole(parameters[2]));
             }
-            if (hasRole(roles.techSupport.id)){
+            if (hasRole(roles.techSupport.id)) {
                 const user = message.mentions.users.first();
                 if (/*(parameters[2] == "newbie") ||*/ (parameters[2] == "TechSupport")) {
                     message.guild.members.get(user.id).removeRole(findRole(parameters[2]));
@@ -123,6 +125,7 @@ bot.on("message", message => {
     function send(m) {
         message.channel.sendMessage(m);
     }
+
     if (command === "eval") {
         if (message.author.id === "192283538110808064") {
             try {
@@ -149,9 +152,9 @@ bot.on("guildMemberAdd", member => {
         member.addRole(newbie);
     }
 
-    setTimeout(()=>{
-       member.removeRole(newbie);
-    },5*60000);
+    setTimeout(()=> {
+        member.removeRole(newbie);
+    }, 5 * 60000);
 
     // Welcome text
     const channel = member.guild.channels.find("name", "general");
