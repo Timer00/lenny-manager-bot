@@ -1,12 +1,83 @@
 const Discord = require("discord.js");
-const bot = new Discord.Client();
+bot = new Discord.Client();
 const config = require("./config.json");
-const token = process.env["LENNY_TOKEN"];
-//const token = require("./secret.json").token;
+//const token = process.env["LENNY_TOKEN"];
+const token = require("./secret.json").token;
 const {parseTime, unindent} = require("./util");
 
 bot.on("ready", () => {
     console.log("Ready to deploy lennies everywhere");
+
+    findRole = function (name) {
+        return bot.guilds.get("278378411095883776").roles.find("name", name);
+    };
+
+    roles = {
+        mod: findRole("Mod"),
+        owner: findRole("Owner"),
+        techSupport: findRole("TechSupport"),
+        muted: findRole("muted"),
+        newbie: findRole("newbie"),
+        fan: findRole("Fan")
+    };
+
+    function Member(name, id) {
+        let self = this;
+        this.name = name;
+        this.id = id;
+        this.strikes = 0;
+        this.firedStrike = false;
+
+        function mute(time) {
+            console.log(time,members.find(x => x.user.id === self.id));
+            members.find(x => x.user.id === self.id).removeRole(roles.muted);
+            members.find(x => x.user.id === self.id).addRole(roles.muted);
+            setTimeout(() => {
+                members.find(x => x.user.id === self.id).removeRole(roles.muted);
+            }, time);
+        }
+
+        this.strike = function () {
+            this.strikes++;
+            if (this.strikes === 3) {
+                mute(1000 * 60 * this.strikes * 4);
+                roles.owner.members.array()[0].user.send(`User (${this.name}, ${this.id}) muted on ${Date()}`);
+            }
+            if (this.strikes === 6) {
+                mute(1000 * 60 * this.strikes * 4);
+                roles.owner.members.array()[0].user.send(`User (${this.name}, ${this.id}) muted on ${Date()}`);
+            }
+            if (this.strikes === 10) {
+                mute(1000 * 60 * this.strikes * 4);
+                roles.owner.members.array()[0].user.send(`User (${this.name}, ${this.id}) muted on ${Date()}`);
+            }
+        };
+        this.fireStrike = function (user, reason) {
+            console.log(user);
+            let tried = "";
+            if (this.firedStrike){
+                tried = "tried to";
+            }
+            roles.owner.members.array()[0].user.send(`The user (${this.name}, ${this.id}) ${tried} sent a report to the user (${user.username}, ${user.id})
+            with the following reason: "${reason}" on ${Date()}`);
+            if (!this.firedStrike) {
+                memberz.find(x => x.id === user.id).strike();
+            }
+            this.firedStrike = true;
+            setTimeout(() => {
+                this.firedStrike = false;
+            }, 1000 * 60 * 10);
+        }
+    }
+
+    memberz = [];
+    members = bot.guilds.get("278378411095883776").members.array();
+    for (let i in members) {
+        let m = members[i];
+        m.removeRole(roles.muted);
+        m.removeRole(roles.newbie);
+        memberz[i] = new Member(m.displayName, m.user.id);
+    }
 });
 
 bot.on("error", e => {
@@ -22,18 +93,10 @@ bot.on("message", message => {
     const parameters = message.content.split(" ");
     const command = parameters[0].slice(prefix.length);
 
-    const roles = {
-        mod: findRole("Mod"),
-        owner: findRole("Owner"),
-        techSupport: findRole("TechSupport")
-    };
-    const mod = message.guild.roles.find("name", "Mod");
-    const owner = message.guild.roles.find("name", "Owner");
-
     const lenny = "( ͡° ͜ʖ ͡°)";
     const lennylenny = "(͡ ͡° ͜ つ ͡͡°)";
     if (command === "lenny") {
-        if (Math.ceil(Math.random() * 50) == 1) {
+        if (Math.ceil(Math.random() * 50) === 1) {
             message.channel.sendMessage(lennylenny);
         } else {
             message.channel.sendMessage(lenny);
@@ -51,16 +114,12 @@ bot.on("message", message => {
         message.channel.sendMessage(masterlenny);
     }
 
-    function findRole(name) {
-        return message.guild.roles.find("name", name);
-    }
-
     function hasRole(role) {
         return message.member.roles.has(role);
     }
 
     const matchmaking = message.guild.roles.find("name", "matchmaking");
-    if (command == "role") {
+    if (command === "role") {
         if (parameters[1].startsWith("<@")) {
             if (hasRole(roles.owner.id)) {
                 const user = message.mentions.users.first();
@@ -68,16 +127,16 @@ bot.on("message", message => {
             }
             if (hasRole(roles.techSupport.id)) {
                 const user = message.mentions.users.first();
-                if (/*(parameters[2] == "newbie") ||*/ (parameters[2] == "TechSupport")) {
+                if ((parameters[2] === "TechSupport")) {
                     message.guild.members.get(user.id).addRole(findRole(parameters[2]));
                 }
             }
         }
-        if (parameters[1] == "matchmaking") {
+        if (parameters[1] === "matchmaking") {
             message.member.addRole(matchmaking);
         }
     }
-    if (command == "!role") {
+    if (command === "!role") {
         if (parameters[1].startsWith("<@")) {
             if (hasRole(roles.owner.id)) {
                 const user = message.mentions.users.first();
@@ -85,14 +144,20 @@ bot.on("message", message => {
             }
             if (hasRole(roles.techSupport.id)) {
                 const user = message.mentions.users.first();
-                if (/*(parameters[2] == "newbie") ||*/ (parameters[2] == "TechSupport")) {
+                if (/*(parameters[2] == "newbie") ||*/ (parameters[2] === "TechSupport")) {
                     message.guild.members.get(user.id).removeRole(findRole(parameters[2]));
                 }
             }
         }
-        if (parameters[1] == "matchmaking") {
+        if (parameters[1] === "matchmaking") {
             message.member.removeRole(matchmaking);
         }
+    }
+
+    if (command === "report") {
+        const user = message.mentions.users.first();
+        const author = message.author;
+        memberz.find(x => x.id === author.id).fireStrike(user, parameters[2]);
     }
 
     if (hasRole(roles.mod.id)) {
@@ -101,7 +166,7 @@ bot.on("message", message => {
             send(parameters[1]);
         }
 
-        if (command == "mute") {
+        if (command === "mute") {
             const time = parseTime(message.content.slice(5).split(" ")[2]);
             const user = message.mentions.users.first();
             message.channel.overwritePermissions(user, {
@@ -114,7 +179,7 @@ bot.on("message", message => {
             }, time);
         }
 
-        if (command == "unmute") {
+        if (command === "unmute") {
             const user = message.mentions.users.first();
             message.channel.overwritePermissions(user, {
                 SEND_MESSAGES: true
@@ -133,7 +198,7 @@ bot.on("message", message => {
                 eval(code).catch(console.error);
             } catch (error) {
                 if (
-                    error !=
+                    error !==
                     "TypeError: Cannot read property 'catch' of undefined"
                 ) {
                     message.channel.sendMessage(error);
@@ -151,8 +216,9 @@ bot.on("guildMemberAdd", member => {
         member.addRole(role);
         member.addRole(newbie);
     }
+    memberz.push(new Member(member.displayName, member.user.id));
 
-    setTimeout(()=> {
+    setTimeout(() => {
         member.removeRole(newbie);
     }, 5 * 60000);
 
