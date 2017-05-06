@@ -21,37 +21,37 @@ bot.on("ready", () => {
         fan: findRole("Fan")
     };
 
-    Member = function(name, id) {
-        let self = this;
+    Member = function (name, id) {
         this.name = name;
         this.id = id;
         this.strikes = 0;
         this.firedStrike = false;
+    };
 
-        function mute(time) {
-            members.find(x => x.user.id === self.id).removeRole(roles.muted).catch(console.error);
-            members.find(x => x.user.id === self.id).addRole(roles.muted).catch(console.error);
-            setTimeout(() => {
-                members.find(x => x.user.id === self.id).removeRole(roles.muted).catch(console.error);
-            }, time);
+    Member.prototype.mute = function(time) {
+        members.find(x => x.user.id === this.id).removeRole(roles.muted).catch(console.error);
+        members.find(x => x.user.id === this.id).addRole(roles.muted).catch(console.error);
+        setTimeout(() => {
+            members.find(x => x.user.id === this.id).removeRole(roles.muted).catch(console.error);
+        }, time);
+    }
+    Member.prototype.strike = function () {
+        this.strikes++;
+        if (this.strikes === 3) {
+            this.mute(1000 * 60 * this.strikes * 4);
+            roles.owner.members.array()[0].user.send(`User (${this.name}, ${this.id}) muted on ${Date()}`);
         }
-
-        this.strike = function () {
-            this.strikes++;
-            if (this.strikes === 3) {
-                mute(1000 * 60 * this.strikes * 4);
-                roles.owner.members.array()[0].user.send(`User (${this.name}, ${this.id}) muted on ${Date()}`);
-            }
-            if (this.strikes === 6) {
-                mute(1000 * 60 * this.strikes * 4);
-                roles.owner.members.array()[0].user.send(`User (${this.name}, ${this.id}) muted on ${Date()}`);
-            }
-            if (this.strikes === 10) {
-                mute(1000 * 60 * this.strikes * 4);
-                roles.owner.members.array()[0].user.send(`User (${this.name}, ${this.id}) muted on ${Date()}`);
-            }
-        };
-        this.fireStrike = function (user, reason) {
+        if (this.strikes === 6) {
+            this.mute(1000 * 60 * this.strikes * 4);
+            roles.owner.members.array()[0].user.send(`User (${this.name}, ${this.id}) muted on ${Date()}`);
+        }
+        if (this.strikes === 10) {
+            this.mute(1000 * 60 * this.strikes * 4);
+            roles.owner.members.array()[0].user.send(`User (${this.name}, ${this.id}) muted on ${Date()}`);
+        }
+    };
+    Member.prototype.fireStrike = function (user, reason) {
+        if (user != undefined) {
             let tried = "";
             if (this.firedStrike) {
                 tried = "tried to";
@@ -66,18 +66,18 @@ bot.on("ready", () => {
                 this.firedStrike = false;
             }, 1000 * 60 * 10);
         }
-    };
+    }
 
-    let x = new Member("lel",123);
+    let x = new Member("lel", 123);
     memberz = [];
     members = bot.guilds.get("278378411095883776").members.array();
     for (let i in members) {
         let m = members[i];
-        for (let r of m.roles.array()){
-            if (r == roles.muted){
+        for (let r of m.roles.array()) {
+            if (r == roles.muted) {
                 m.removeRole(roles.muted);
             }
-            if (r == roles.newbie){
+            if (r == roles.newbie) {
                 m.removeRole(roles.newbie);
             }
         }
