@@ -1,8 +1,8 @@
 const Discord = require("discord.js");
 bot = new Discord.Client();
 const config = require("./config.json");
-//const token = process.env["LENNY_TOKEN"];
-const token = require("./secret.json").token;
+const token = process.env["LENNY_TOKEN"];
+//const token = require("./secret.json").token;
 const {parseTime, unindent} = require("./util");
 
 bot.on("ready", () => {
