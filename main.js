@@ -1,8 +1,8 @@
 const Discord = require("discord.js");
 bot = new Discord.Client();
 const config = require("./config.json");
-const token = process.env["LENNY_TOKEN"];
-//const token = require("./secret.json").token;
+//const token = process.env["LENNY_TOKEN"];
+const token = require("./secret.json").token;
 const {parseTime, unindent} = require("./util");
 
 bot.on("ready", () => {
@@ -29,7 +29,6 @@ bot.on("ready", () => {
         this.firedStrike = false;
 
         function mute(time) {
-            console.log(time, members.find(x => x.user.id === self.id));
             members.find(x => x.user.id === self.id).removeRole(roles.muted).catch(console.error);
             members.find(x => x.user.id === self.id).addRole(roles.muted).catch(console.error);
             setTimeout(() => {
@@ -53,7 +52,6 @@ bot.on("ready", () => {
             }
         };
         this.fireStrike = function (user, reason) {
-            console.log(user);
             let tried = "";
             if (this.firedStrike) {
                 tried = "tried to";
@@ -70,12 +68,19 @@ bot.on("ready", () => {
         }
     };
 
+    let x = new Member("lel",123);
     memberz = [];
     members = bot.guilds.get("278378411095883776").members.array();
     for (let i in members) {
         let m = members[i];
-        m.removeRole(roles.muted);
-        m.removeRole(roles.newbie);
+        for (let r of m.roles.array()){
+            if (r == roles.muted){
+                m.removeRole(roles.muted);
+            }
+            if (r == roles.newbie){
+                m.removeRole(roles.newbie);
+            }
+        }
         memberz[i] = new Member(m.displayName, m.user.id);
     }
 });
@@ -216,7 +221,7 @@ bot.on("guildMemberAdd", member => {
         member.addRole(role);
         member.addRole(newbie);
     }
-    memberz.push(new Member(member.displayName, member.user.id));
+    //memberz.push(new Member(member.displayName, member.user.id));
 
     setTimeout(() => {
         member.removeRole(newbie);
