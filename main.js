@@ -21,7 +21,7 @@ bot.on("ready", () => {
         fan: findRole("Fan")
     };
 
-    function Member(name, id) {
+    Member = function(name, id) {
         let self = this;
         this.name = name;
         this.id = id;
@@ -29,11 +29,11 @@ bot.on("ready", () => {
         this.firedStrike = false;
 
         function mute(time) {
-            console.log(time,members.find(x => x.user.id === self.id));
-            members.find(x => x.user.id === self.id).removeRole(roles.muted);
-            members.find(x => x.user.id === self.id).addRole(roles.muted);
+            console.log(time, members.find(x => x.user.id === self.id));
+            members.find(x => x.user.id === self.id).removeRole(roles.muted).catch(console.error);
+            members.find(x => x.user.id === self.id).addRole(roles.muted).catch(console.error);
             setTimeout(() => {
-                members.find(x => x.user.id === self.id).removeRole(roles.muted);
+                members.find(x => x.user.id === self.id).removeRole(roles.muted).catch(console.error);
             }, time);
         }
 
@@ -55,7 +55,7 @@ bot.on("ready", () => {
         this.fireStrike = function (user, reason) {
             console.log(user);
             let tried = "";
-            if (this.firedStrike){
+            if (this.firedStrike) {
                 tried = "tried to";
             }
             roles.owner.members.array()[0].user.send(`The user (${this.name}, ${this.id}) ${tried} sent a report to the user (${user.username}, ${user.id})
@@ -68,7 +68,7 @@ bot.on("ready", () => {
                 this.firedStrike = false;
             }, 1000 * 60 * 10);
         }
-    }
+    };
 
     memberz = [];
     members = bot.guilds.get("278378411095883776").members.array();
@@ -137,7 +137,7 @@ bot.on("message", message => {
         }
     }
     if (command === "!role") {
-        if (parameters[1].startsWith("<@")) {
+        if (parameters[1].startsWith("@")) {
             if (hasRole(roles.owner.id)) {
                 const user = message.mentions.users.first();
                 message.guild.members.get(user.id).removeRole(findRole(parameters[2]));
