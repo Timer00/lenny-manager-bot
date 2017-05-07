@@ -50,7 +50,17 @@ function parseTime(time) {
     }, 0);
 }
 
+/**
+ * toLowerInitial("TechSupport") => "techSupport"
+ * @param {string} string
+ * @return {string}
+ */
+function toLowerInitial(string) {
+    return string.charAt(0).toLowerCase() + string.slice(1);
+}
+
 module.exports = {
     unindent,
     parseTime,
+    toLowerInitial,
 };

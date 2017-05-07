@@ -1,89 +1,38 @@
 const Discord = require("discord.js");
-const bot = new Discord.Client();
+const bot = require("./bot-client");
 const config = require("./config.json");
 //const token = process.env["LENNY_TOKEN"];
 const token = require("./secret.json").token;
-const {parseTime, unindent} = require("./util");
-let Member;
-
-const memberz = [];
+const MemberInfo = require("./member-info");
+const state = require("./state");
+const {parseTime, unindent, toLowerInitial} = require("./util");
+const roles = state.roles;
 
 function findRole(name) {
     return bot.guilds.get("278378411095883776").roles.find("name", name);
 }
 
-let roles;
-
 bot.on("ready", () => {
     console.log("Ready to deploy lennies everywhere");
 
-    roles = {
-        mod: findRole("Mod"),
-        owner: findRole("Owner"),
-        techSupport: findRole("TechSupport"),
-        muted: findRole("muted"),
-        newbie: findRole("newbie"),
-        fan: findRole("Fan")
-    };
-
-    Member = function (name, id) {
-        this.name = name;
-        this.id = id;
-        this.strikes = 0;
-        this.firedStrike = false;
-    };
-
-    Member.prototype.mute = function(time) {
-        const members = bot.guilds.get("278378411095883776").members.array();
-        members.find(x => x.user.id === this.id).removeRole(roles.muted).catch(console.error);
-        members.find(x => x.user.id === this.id).addRole(roles.muted).catch(console.error);
-        setTimeout(() => {
-            members.find(x => x.user.id === this.id).removeRole(roles.muted).catch(console.error);
-        }, time);
-    };
-    Member.prototype.strike = function() {
-        this.strikes++;
-        if (this.strikes === 3) {
-            this.mute(1000 * 60 * this.strikes * 4);
-            roles.owner.members.array()[0].user.send(`User (${this.name}, ${this.id}) muted on ${Date()}`);
-        }
-        if (this.strikes === 6) {
-            this.mute(1000 * 60 * this.strikes * 4);
-            roles.owner.members.array()[0].user.send(`User (${this.name}, ${this.id}) muted on ${Date()}`);
-        }
-        if (this.strikes === 10) {
-            this.mute(1000 * 60 * this.strikes * 4);
-            roles.owner.members.array()[0].user.send(`User (${this.name}, ${this.id}) muted on ${Date()}`);
-        }
-    };
-    Member.prototype.fireStrike = function(user, reason) {
-        if (user != undefined) {
-            let tried = "";
-            if (this.firedStrike) {
-                tried = "tried to";
-            }
-            roles.owner.members.array()[0].user.send(`The user (${this.name}, ${this.id}) ${tried} sent a report to the user (${user.username}, ${user.id})
-            with the following reason: "${reason}" on ${Date()}`);
-            if (!this.firedStrike) {
-                memberz.find(x => x.id === user.id).strike();
-            }
-            this.firedStrike = true;
-            setTimeout(() => {
-                this.firedStrike = false;
-            }, 1000 * 60 * 10);
-        }
-    };
+    [
+        "Mod",
+        "Owner",
+        "TechSupport",
+        "muted",
+        "newbie",
+        "Fan"
+    ].forEach(roleName => {
+        roles[toLowerInitial(roleName)] = findRole(roleName);
+    });
 
     bot.guilds.get("278378411095883776").members.forEach(member => {
-        member.roles.forEach(role => {
-            if (role == roles.muted){
-                member.removeRole(roles.muted);
-            }
-            if (role == roles.newbie){
-                member.removeRole(roles.newbie);
+        [roles.muted, roles.newbie].forEach(role => {
+            if (member.roles.has(role.id)) {
+                member.removeRole(role);
             }
         });
-        memberz.push(new Member(member.displayName, member.user.id));
+        state.memberInfos.push(new MemberInfo(member.displayName, member.user.id));
     });
 });
 
@@ -164,7 +113,7 @@ bot.on("message", message => {
     if (command === "report") {
         const user = message.mentions.users.first();
         const author = message.author;
-        memberz.find(x => x.id === author.id).fireStrike(user, parameters[2]);
+        state.memberInfos.find(x => x.id === author.id).fireStrike(user, parameters[2]);
     }
 
     if (hasRole(roles.mod.id)) {
@@ -174,7 +123,11 @@ bot.on("message", message => {
         }
 
         if (command === "mute") {
-            const time = parseTime(message.content.slice(5).split(" ")[2]);
+            const timeArg = message.content.slice(5).split(" ")[2];
+            if (!timeArg) {
+                return;
+            }
+            const time = parseTime(timeArg);
             const user = message.mentions.users.first();
             message.channel.overwritePermissions(user, {
                 SEND_MESSAGES: false
@@ -223,7 +176,7 @@ bot.on("guildMemberAdd", member => {
         member.addRole(role);
         member.addRole(newbie);
     }
-    memberz.push(new Member(member.displayName, member.user.id));
+    state.memberInfos.push(new MemberInfo(member.displayName, member.user.id));
 
     setTimeout(() => {
         member.removeRole(newbie);
