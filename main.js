@@ -1,4 +1,3 @@
-const Discord = require("discord.js");
 const bot = require("./bot-client");
 const config = require("./config.json");
 //const token = process.env["LENNY_TOKEN"];

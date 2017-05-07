@@ -1,3 +1,4 @@
+const bot = require("./bot-client");
 const { roles, memberInfos } = require("./state");
 
 function Member(name, id) {
