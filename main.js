@@ -223,7 +223,7 @@ bot.on("guildMemberAdd", member => {
         member.addRole(role);
         member.addRole(newbie);
     }
-    //memberz.push(new Member(member.displayName, member.user.id));
+    memberz.push(new Member(member.displayName, member.user.id));
 
     setTimeout(() => {
         member.removeRole(newbie);
