@@ -4,7 +4,6 @@ const config = require("./config.json");
 //const token = process.env["LENNY_TOKEN"];
 const token = require("./secret.json").token;
 const {parseTime, unindent} = require("./util");
-// const Member = require("./member");
 let Member;
 
 const memberz = [];
