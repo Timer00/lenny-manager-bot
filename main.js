@@ -1,16 +1,22 @@
 const Discord = require("discord.js");
-bot = new Discord.Client();
+const bot = new Discord.Client();
 const config = require("./config.json");
 //const token = process.env["LENNY_TOKEN"];
 const token = require("./secret.json").token;
 const {parseTime, unindent} = require("./util");
+// const Member = require("./member");
+let Member;
+
+const memberz = [];
+
+function findRole(name) {
+    return bot.guilds.get("278378411095883776").roles.find("name", name);
+}
+
+let roles;
 
 bot.on("ready", () => {
     console.log("Ready to deploy lennies everywhere");
-
-    findRole = function (name) {
-        return bot.guilds.get("278378411095883776").roles.find("name", name);
-    };
 
     roles = {
         mod: findRole("Mod"),
@@ -29,13 +35,14 @@ bot.on("ready", () => {
     };
 
     Member.prototype.mute = function(time) {
+        const members = bot.guilds.get("278378411095883776").members.array();
         members.find(x => x.user.id === this.id).removeRole(roles.muted).catch(console.error);
         members.find(x => x.user.id === this.id).addRole(roles.muted).catch(console.error);
         setTimeout(() => {
             members.find(x => x.user.id === this.id).removeRole(roles.muted).catch(console.error);
         }, time);
-    }
-    Member.prototype.strike = function () {
+    };
+    Member.prototype.strike = function() {
         this.strikes++;
         if (this.strikes === 3) {
             this.mute(1000 * 60 * this.strikes * 4);
@@ -50,7 +57,7 @@ bot.on("ready", () => {
             roles.owner.members.array()[0].user.send(`User (${this.name}, ${this.id}) muted on ${Date()}`);
         }
     };
-    Member.prototype.fireStrike = function (user, reason) {
+    Member.prototype.fireStrike = function(user, reason) {
         if (user != undefined) {
             let tried = "";
             if (this.firedStrike) {
@@ -66,23 +73,19 @@ bot.on("ready", () => {
                 this.firedStrike = false;
             }, 1000 * 60 * 10);
         }
-    }
+    };
 
-    let x = new Member("lel", 123);
-    memberz = [];
-    members = bot.guilds.get("278378411095883776").members.array();
-    for (let i in members) {
-        let m = members[i];
-        for (let r of m.roles.array()) {
-            if (r == roles.muted) {
-                m.removeRole(roles.muted);
+    bot.guilds.get("278378411095883776").members.forEach(member => {
+        member.roles.forEach(role => {
+            if (role == roles.muted){
+                member.removeRole(roles.muted);
             }
-            if (r == roles.newbie) {
-                m.removeRole(roles.newbie);
+            if (role == roles.newbie){
+                member.removeRole(roles.newbie);
             }
-        }
-        memberz[i] = new Member(m.displayName, m.user.id);
-    }
+        });
+        memberz.push(new Member(member.displayName, member.user.id));
+    });
 });
 
 bot.on("error", e => {
@@ -149,7 +152,7 @@ bot.on("message", message => {
             }
             if (hasRole(roles.techSupport.id)) {
                 const user = message.mentions.users.first();
-                if (/*(parameters[2] == "newbie") ||*/ (parameters[2] === "TechSupport")) {
+                if (parameters[2] === "TechSupport") {
                     message.guild.members.get(user.id).removeRole(findRole(parameters[2]));
                 }
             }
