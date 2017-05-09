@@ -20,15 +20,15 @@ Member.prototype.strike = function() {
     this.strikes++;
     if (this.strikes === 3) {
         this.mute(1000 * 60 * this.strikes * 4);
-        roles.owner.members.array()[0].user.send(`User (${this.name}, ${this.id}) muted on ${Date()}`);
+        roles.owner.members.first().user.send(`User (${this.name}, ${this.id}) muted on ${Date()}`);
     }
     if (this.strikes === 6) {
         this.mute(1000 * 60 * this.strikes * 4);
-        roles.owner.members.array()[0].user.send(`User (${this.name}, ${this.id}) muted on ${Date()}`);
+        roles.owner.members.first().user.send(`User (${this.name}, ${this.id}) muted on ${Date()}`);
     }
     if (this.strikes === 10) {
         this.mute(1000 * 60 * this.strikes * 4);
-        roles.owner.members.array()[0].user.send(`User (${this.name}, ${this.id}) muted on ${Date()}`);
+        roles.owner.members.first().user.send(`User (${this.name}, ${this.id}) muted on ${Date()}`);
     }
 };
 
@@ -38,8 +38,8 @@ Member.prototype.fireStrike = function(user, reason) {
         if (this.firedStrike) {
             tried = "tried to";
         }
-        roles.owner.members.array()[0].user.send(`The user (${this.name}, ${this.id}) ${tried} sent a report to the user (${user.username}, ${user.id})
-        with the following reason: "${reason}" on ${Date()}`);
+        roles.owner.members.first().user.send(`The user (${this.name}, ${this.id}) ${tried} sent a report to the user (${user.username}, ${user.id})
+            with the following reason: "${reason}" on ${Date()}`);
         if (!this.firedStrike) {
             memberInfos.find(x => x.id === user.id).strike();
         }
