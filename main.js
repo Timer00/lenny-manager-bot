@@ -45,6 +45,12 @@ bot.on("message", message => {
     if (!message.content.startsWith(prefix)) return;
     if (message.author.bot) return;
 
+    // make sure we have some message history loaded
+    // TODO: this is async, so will not be available for this request
+    if (message.channel.messages.size < 20) {
+        message.channel.fetchMessages({ limit: 20 });
+    }
+
     const parameters = message.content.split(" ");
     const command = parameters[0].slice(prefix.length);
 
@@ -143,6 +149,17 @@ bot.on("message", message => {
             message.channel.overwritePermissions(user, {
                 SEND_MESSAGES: true
             });
+        }
+
+        if (command === "cleanup") {
+            const users = message.mentions.users;
+            const cutoff = Date.now() - parseTime("3m");
+            const messages = message.channel.messages.filter(m =>
+                users.has(m.author.id) && m.createdTimestamp >= cutoff
+            );
+            if (messages.size > 0) {
+                message.channel.bulkDelete(messages);
+            }
         }
     }
 
