@@ -1,7 +1,9 @@
 const bot = require("./bot-client");
-const config = require("./config.json");
-const token = process.env["LENNY_TOKEN"];
-//const token = require("./secret.json").token;
+const dataPath = "./data.json";
+const data = require(dataPath);
+const fileSystem = require('fs');
+//const token = process.env["LENNY_TOKEN"];
+const token = require("./secret.json").token;
 const MemberInfo = require("./member-info");
 const state = require("./state");
 const {parseTime, unindent, toLowerInitial} = require("./util");
@@ -12,8 +14,8 @@ function findRole(name) {
     return bot.guilds.get("278378411095883776").roles.find("name", name);
 }
 
-function text(array,index){
-    let x = array.splice(-(array.length-index));
+function text(array, index) {
+    let x = array.splice(-(array.length - index));
     return x.join(" ");
 }
 bot.on("ready", () => {
@@ -46,7 +48,7 @@ bot.on("error", e => {
 });
 
 bot.on("message", message => {
-    const prefix = config.prefix;
+    const prefix = data.prefix;
 
     if (!message.content.startsWith(prefix)) return;
     if (message.author.bot) return;
@@ -54,7 +56,7 @@ bot.on("message", message => {
     // make sure we have some message history loaded
     // TODO: this is async, so will not be available for this request
     if (message.channel.messages.size < 20) {
-        message.channel.fetchMessages({ limit: 20 });
+        message.channel.fetchMessages({limit: 20});
     }
 
     const parameters = message.content.split(" ");
@@ -124,25 +126,28 @@ bot.on("message", message => {
     if (command === "report") {
         const user = message.mentions.users.first();
         const author = message.author;
-        state.memberInfos.find(x => x.id === author.id).fireStrike(user, text(parameters,2));
+        state.memberInfos.find(x => x.id === author.id).fireStrike(user, text(parameters, 2));
     }
 
-    if (command === "serverStatus"){
+    if (command === "serverStatus") {
         if (hasRole(roles.collaborator.id)) {
-            if (parameters[1] !== undefined){
-                serverStatus = text(parameters,1);
+            if (parameters[1] !== undefined) {
+                data.serverStatus = text(parameters, 1);
+                fileSystem.writeFile(dataPath, JSON.stringify(data, null, 2), function (error) {
+                    if (error) return console.log(error);
+                });
             } else {
-                send(serverStatus);
+                send(data.serverStatus);
             }
         } else {
-            send(serverStatus);
+            send(data.serverStatus);
         }
     }
 
     if (hasRole(roles.mod.id)) {
         if (command === "say") {
             message.delete();
-            send(text(parameters,1));
+            send(text(parameters, 1));
         }
 
         if (command === "mute") {
