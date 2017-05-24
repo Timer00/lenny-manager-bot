@@ -6,6 +6,7 @@ const MemberInfo = require("./member-info");
 const state = require("./state");
 const {parseTime, unindent, toLowerInitial} = require("./util");
 const roles = state.roles;
+let serverStatus = "Offline";
 
 function findRole(name) {
     return bot.guilds.get("278378411095883776").roles.find("name", name);
@@ -20,7 +21,8 @@ bot.on("ready", () => {
         "TechSupport",
         "muted",
         "newbie",
-        "Fan"
+        "Fan",
+        "Collaborator"
     ].forEach(roleName => {
         roles[toLowerInitial(roleName)] = findRole(roleName);
     });
@@ -119,6 +121,19 @@ bot.on("message", message => {
         const user = message.mentions.users.first();
         const author = message.author;
         state.memberInfos.find(x => x.id === author.id).fireStrike(user, parameters[2]);
+    }
+
+    if (command === "serverStatus"){
+        if (hasRole(roles.collaborator.id)) {
+            if (parameters[1] !== undefined){
+                serverStatus = parameters[1];
+                console.log(parameters[1]);
+            } else {
+                send(serverStatus);
+            }
+        } else {
+            send(serverStatus);
+        }
     }
 
     if (hasRole(roles.mod.id)) {
