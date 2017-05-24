@@ -12,6 +12,10 @@ function findRole(name) {
     return bot.guilds.get("278378411095883776").roles.find("name", name);
 }
 
+function text(array,index){
+    let x = array.splice(-(array.length-index));
+    return x.join(" ");
+}
 bot.on("ready", () => {
     console.log("Ready to deploy lennies everywhere");
 
@@ -120,14 +124,13 @@ bot.on("message", message => {
     if (command === "report") {
         const user = message.mentions.users.first();
         const author = message.author;
-        state.memberInfos.find(x => x.id === author.id).fireStrike(user, parameters[2]);
+        state.memberInfos.find(x => x.id === author.id).fireStrike(user, text(parameters,2));
     }
 
     if (command === "serverStatus"){
         if (hasRole(roles.collaborator.id)) {
             if (parameters[1] !== undefined){
-                serverStatus = parameters[1];
-                console.log(parameters[1]);
+                serverStatus = text(parameters,1);
             } else {
                 send(serverStatus);
             }
@@ -139,7 +142,7 @@ bot.on("message", message => {
     if (hasRole(roles.mod.id)) {
         if (command === "say") {
             message.delete();
-            send(parameters[1]);
+            send(text(parameters,1));
         }
 
         if (command === "mute") {
