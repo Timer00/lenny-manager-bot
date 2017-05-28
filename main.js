@@ -129,7 +129,7 @@ bot.on("message", message => {
         state.memberInfos.find(x => x.id === author.id).fireStrike(user, text(parameters, 2));
     }
 
-    if (command === "serverStatus") {
+    if (command.toLowerCase(); === "serverstatus") {
         if (hasRole(roles.collaborator.id)) {
             if (parameters[1] !== undefined) {
                 data.serverStatus = text(parameters, 1);
