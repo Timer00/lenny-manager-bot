@@ -231,7 +231,7 @@ bot.on("guildMemberAdd", member => {
         channel.sendMessage(
             unindent`Welcome, ${member}!
                 |Please read ${infoc} , ${faqc} and ${updc} to better understand the project and it's current situation. The english installation instructions are located here: 
-http://steamcommunity.com/sharedfiles/filedetails/?id=904845972 - More languages are avaliable at #information.
+http://steamcommunity.com/sharedfiles/filedetails/?id=904845972
  If you need any help feel free to use the ${helpc} channel.`
         );
     }
