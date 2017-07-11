@@ -230,7 +230,9 @@ bot.on("guildMemberAdd", member => {
     if (channel) {
         channel.sendMessage(
             unindent`Welcome, ${member}!
-                |Please read ${infoc} , ${faqc} and ${updc} to better understand the project and it's current situation. The english installation instructions are located here: http://steamcommunity.com/sharedfiles/filedetails/?id=904845972 - More languages are avaliable at #information. If you need any help feel free to use the ${helpc} channel.`
+                |Please read ${infoc} , ${faqc} and ${updc} to better understand the project and it's current situation. The english installation instructions are located here: 
+http://steamcommunity.com/sharedfiles/filedetails/?id=904845972 - More languages are avaliable at #information.
+ If you need any help feel free to use the ${helpc} channel.`
         );
     }
     //You will be muted for 5 minutes on all channels except #help, feel free to ask questions there, please use this time to read #information , #faq and #updates . The english installation instructions are located here: http://steamcommunity.com/sharedfiles/filedetails/?id=904845972 - More languages are avaliable at #information.`
