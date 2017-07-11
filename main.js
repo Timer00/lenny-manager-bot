@@ -226,7 +226,7 @@ bot.on("guildMemberAdd", member => {
     if (channel) {
         channel.sendMessage(
             unindent`Welcome, ${member}!
-                |You will be muted for 5 minutes on all channels except #help, feel free to ask questions there, please use this time to read #information , #faq and #updates .`
+                |You will be muted for 5 minutes on all channels except #help, feel free to ask questions there, please use this time to read #information , #faq and #updates . The english installation instructions are located here: http://steamcommunity.com/sharedfiles/filedetails/?id=904845972 - More languages are avaliable at #information.`
         );
     }
 });
