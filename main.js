@@ -213,22 +213,27 @@ bot.on("guildMemberAdd", member => {
     const newbie = member.guild.roles.find("name", "newbie");
     if (role) {
         member.addRole(role);
-        member.addRole(newbie);
+        //member.addRole(newbie);
     }
     state.memberInfos.push(new MemberInfo(member.displayName, member.user.id));
 
-    setTimeout(() => {
+    /*setTimeout(() => {
         member.removeRole(newbie);
-    }, 5 * 60000);
+    }, 5 * 60000);*/
 
     // Welcome text
     const channel = member.guild.channels.find("name", "general");
+    const infoc = member.guild.channels.find("name", "information");
+    const helpc = member.guild.channels.find("name", "help");
+    const updc = member.guild.channels.find("name", "updates");
+    const faqc = member.guild.channels.find("name", "faq");
     if (channel) {
         channel.sendMessage(
             unindent`Welcome, ${member}!
-                |You will be muted for 5 minutes on all channels except #help, feel free to ask questions there, please use this time to read #information , #faq and #updates . The english installation instructions are located here: http://steamcommunity.com/sharedfiles/filedetails/?id=904845972 - More languages are avaliable at #information.`
+                |Please read ${infoc} , ${faqc} and ${updc} to better understand the project and it's current situation. The english installation instructions are located here: http://steamcommunity.com/sharedfiles/filedetails/?id=904845972 - More languages are avaliable at #information. If you need any help feel free to use the ${helpc} channel.`
         );
     }
+    //You will be muted for 5 minutes on all channels except #help, feel free to ask questions there, please use this time to read #information , #faq and #updates . The english installation instructions are located here: http://steamcommunity.com/sharedfiles/filedetails/?id=904845972 - More languages are avaliable at #information.`
 });
 
 bot.login(token);
