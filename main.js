@@ -222,7 +222,7 @@ bot.on("guildMemberAdd", member => {
     }, 5 * 60000);*/
 
     // Welcome text
-    const channel = member.guild.channels.find("name", "general");
+    const channel = member.guild.channels.find("name", "lenny");
     const infoc = member.guild.channels.find("name", "information");
     const helpc = member.guild.channels.find("name", "help");
     const updc = member.guild.channels.find("name", "updates");
