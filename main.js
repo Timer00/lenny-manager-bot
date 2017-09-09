@@ -18,6 +18,7 @@ function text(array, index) {
     let x = array.splice(-(array.length - index));
     return x.join(" ");
 }
+
 bot.on("ready", () => {
     console.log("Ready to deploy lennies everywhere");
 
@@ -144,6 +145,7 @@ bot.on("message", message => {
         }
     }
 
+
     if (hasRole(roles.mod.id)) {
         if (command === "say") {
             message.delete();
@@ -182,6 +184,45 @@ bot.on("message", message => {
             );
             if (messages.size > 0) {
                 message.channel.bulkDelete(messages);
+            }
+        }
+
+        if (command.toLowerCase() === "objectives") {
+            send(data.mods.objectives);
+        }
+        if (command.toLowerCase() === "commands") {
+            send(data.mods.commands);
+        }
+        if (hasRole(roles.owner.id)) {
+            if (command.toLowerCase() === "edit") {
+                if (parameters[1].toLowerCase() === "objectives") {
+                    if (parameters[2].toLowerCase() === "new") {
+                        data.mods.objectives.push(parameters[3]);
+                        fileSystem.writeFile(dataPath, JSON.stringify(data, null, 2), function (error) {
+                            if (error) return console.log(error);
+                        });
+                    }
+                    if (parameters[2].toLowerCase() === "del") {
+                        data.mods.objectives.splice(Number(parameters[3]), 1);
+                        fileSystem.writeFile(dataPath, JSON.stringify(data, null, 2), function (error) {
+                            if (error) return console.log(error);
+                        });
+                    }
+                }
+                if (parameters[1].toLowerCase() === "commands") {
+                    if (parameters[2].toLowerCase() === "new") {
+                        data.mods.commands.push(parameters[3]);
+                        fileSystem.writeFile(dataPath, JSON.stringify(data, null, 2), function (error) {
+                            if (error) return console.log(error);
+                        });
+                    }
+                    if (parameters[2].toLowerCase() === "del") {
+                        data.mods.commands.splice(Number(parameters[3]), 1);
+                        fileSystem.writeFile(dataPath, JSON.stringify(data, null, 2), function (error) {
+                            if (error) return console.log(error);
+                        });
+                    }
+                }
             }
         }
     }
