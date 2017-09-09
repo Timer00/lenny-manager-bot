@@ -197,7 +197,7 @@ bot.on("message", message => {
             if (command.toLowerCase() === "edit") {
                 if (parameters[1].toLowerCase() === "objectives") {
                     if (parameters[2].toLowerCase() === "new") {
-                        data.mods.objectives.push(parameters[3]);
+                        data.mods.objectives.push(text(parameters, 3));
                         fileSystem.writeFile(dataPath, JSON.stringify(data, null, 2), function (error) {
                             if (error) return console.log(error);
                         });
@@ -211,7 +211,7 @@ bot.on("message", message => {
                 }
                 if (parameters[1].toLowerCase() === "commands") {
                     if (parameters[2].toLowerCase() === "new") {
-                        data.mods.commands.push(parameters[3]);
+                        data.mods.commands.push(text(parameters, 3));
                         fileSystem.writeFile(dataPath, JSON.stringify(data, null, 2), function (error) {
                             if (error) return console.log(error);
                         });
