@@ -1,13 +1,13 @@
 bot = require("./bot-client");
 const fileSystem = require('fs');
-//const token = process.env["LENNY_TOKEN"];
-const token = require("./secret.json").token;
+const token = process.env["LENNY_TOKEN"];
+//const token = require("./secret.json").token;
 const MemberInfo = require("./member-info");
 const state = require("./state");
 const {parseTime, unindent, toLowerInitial} = require("./util");
 const roles = state.roles;
-let serverStatus = "Offline";
-data = {
+
+let data = {
     base: {},
     channel: 0,
     message: ""
