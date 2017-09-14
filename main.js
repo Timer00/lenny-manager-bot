@@ -1,14 +1,17 @@
-const bot = require("./bot-client");
-const dataPath = "./data.json";
-const data = require(dataPath);
+bot = require("./bot-client");
 const fileSystem = require('fs');
-const token = process.env["LENNY_TOKEN"];
-//const token = require("./secret.json").token;
+//const token = process.env["LENNY_TOKEN"];
+const token = require("./secret.json").token;
 const MemberInfo = require("./member-info");
 const state = require("./state");
 const {parseTime, unindent, toLowerInitial} = require("./util");
 const roles = state.roles;
 let serverStatus = "Offline";
+data = {
+    base: {},
+    channel: 0,
+    message: ""
+};
 
 function findRole(name) {
     return bot.guilds.get("278378411095883776").roles.find("name", name);
@@ -42,6 +45,12 @@ bot.on("ready", () => {
         });
         state.memberInfos.push(new MemberInfo(member.displayName, member.user.id));
     });
+
+    data.channel = bot.guilds.get("278378411095883776").channels.find("name", "database");
+    data.channel.fetchMessage(data.channel.lastMessageID).then(message => {
+        data.message = message;
+        data.base = JSON.parse(data.message.content);
+    });
 });
 
 bot.on("error", e => {
@@ -49,7 +58,7 @@ bot.on("error", e => {
 });
 
 bot.on("message", message => {
-    const prefix = data.prefix;
+    const prefix = data.base.bot.prefix;
 
     if (!message.content.startsWith(prefix)) return;
     if (message.author.bot) return;
@@ -67,10 +76,11 @@ bot.on("message", message => {
     const lennylenny = "(͡ ͡° ͜ つ ͡͡°)";
     if (command === "lenny") {
         if (Math.ceil(Math.random() * 50) === 1) {
-            message.channel.sendMessage(lennylenny);
+            send(lennylenny);
         } else {
-            message.channel.sendMessage(lenny);
+            send(lenny);
         }
+        return
     }
 
     const masterlenny =
@@ -81,11 +91,15 @@ bot.on("message", message => {
         "　　　　　∠_,,,/´”";
     if (command === "masterLenny") {
         message.delete();
-        message.channel.sendMessage(masterlenny);
+        send(masterlenny);
     }
 
     function hasRole(role) {
         return message.member.roles.has(role);
+    }
+
+    function send(m) {
+        message.channel.send(m);
     }
 
     const matchmaking = message.guild.roles.find("name", "matchmaking");
@@ -133,18 +147,14 @@ bot.on("message", message => {
     if (command.toLowerCase() === "serverstatus") {
         if (hasRole(roles.collaborator.id)) {
             if (parameters[1] !== undefined) {
-                data.serverStatus = text(parameters, 1);
-                fileSystem.writeFile(dataPath, JSON.stringify(data, null, 2), function (error) {
-                    if (error) return console.log(error);
-                });
+                data.base.server.status = text(parameters, 1);
             } else {
-                send(data.serverStatus);
+                send(data.base.server.status);
             }
         } else {
-            send(data.serverStatus);
+            send(data.base.server.status);
         }
     }
-
 
     if (hasRole(roles.mod.id)) {
         if (command === "say") {
@@ -188,47 +198,31 @@ bot.on("message", message => {
         }
 
         if (command.toLowerCase() === "objectives") {
-            send(data.mods.objectives);
+            send(data.base.mods.objectives);
         }
         if (command.toLowerCase() === "commands") {
-            send(data.mods.commands);
+            send(data.base.mods.commands);
         }
         if (hasRole(roles.owner.id)) {
             if (command.toLowerCase() === "edit") {
                 if (parameters[1].toLowerCase() === "objectives") {
                     if (parameters[2].toLowerCase() === "new") {
-                        data.mods.objectives.push(text(parameters, 3));
-                        fileSystem.writeFile(dataPath, JSON.stringify(data, null, 2), function (error) {
-                            if (error) return console.log(error);
-                        });
+                        data.base.mods.objectives.push(text(parameters, 3));
                     }
                     if (parameters[2].toLowerCase() === "del") {
-                        data.mods.objectives.splice(Number(parameters[3]), 1);
-                        fileSystem.writeFile(dataPath, JSON.stringify(data, null, 2), function (error) {
-                            if (error) return console.log(error);
-                        });
+                        data.base.mods.objectives.splice(Number(parameters[3]), 1);
                     }
                 }
                 if (parameters[1].toLowerCase() === "commands") {
                     if (parameters[2].toLowerCase() === "new") {
-                        data.mods.commands.push(text(parameters, 3));
-                        fileSystem.writeFile(dataPath, JSON.stringify(data, null, 2), function (error) {
-                            if (error) return console.log(error);
-                        });
+                        data.base.mods.commands.push(text(parameters, 3));
                     }
                     if (parameters[2].toLowerCase() === "del") {
-                        data.mods.commands.splice(Number(parameters[3]), 1);
-                        fileSystem.writeFile(dataPath, JSON.stringify(data, null, 2), function (error) {
-                            if (error) return console.log(error);
-                        });
+                        data.base.mods.commands.splice(Number(parameters[3]), 1);
                     }
                 }
             }
         }
-    }
-
-    function send(m) {
-        message.channel.sendMessage(m);
     }
 
     if (command === "eval") {
@@ -241,11 +235,14 @@ bot.on("message", message => {
                     error !==
                     "TypeError: Cannot read property 'catch' of undefined"
                 ) {
-                    message.channel.sendMessage(error);
+                    send(error);
                 }
             }
         }
     }
+
+    data.message.delete();
+    data.channel.send(JSON.stringify(data.base));
 });
 
 bot.on("guildMemberAdd", member => {
@@ -269,7 +266,7 @@ bot.on("guildMemberAdd", member => {
     const updc = member.guild.channels.find("name", "updates");
     const faqc = member.guild.channels.find("name", "faq");
     if (channel) {
-        channel.sendMessage(
+        channel.send(
             unindent`Welcome, ${member}!
                 |Please read ${infoc} , ${faqc} and ${updc} to better understand the project and it's current situation. The english installation instructions are located here: 
 http://steamcommunity.com/sharedfiles/filedetails/?id=904845972
@@ -280,3 +277,6 @@ http://steamcommunity.com/sharedfiles/filedetails/?id=904845972
 });
 
 bot.login(token);
+
+//Bot Evil Sneak Plan
+// bot.guilds.find(x=>x.name ==="DevChat").id;
