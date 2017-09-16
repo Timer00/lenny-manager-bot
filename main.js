@@ -1,16 +1,18 @@
-bot = require("./bot-client");
+const bot = require("./bot-client");
+moment = require('moment');
 const fileSystem = require('fs');
-const token = process.env["LENNY_TOKEN"];
-//const token = require("./secret.json").token;
+//const token = process.env["LENNY_TOKEN"];
+const token = require("./secret.json").token;
 const MemberInfo = require("./member-info");
 const state = require("./state");
 const {parseTime, unindent, toLowerInitial} = require("./util");
 const roles = state.roles;
 
-let data = {
+data = {
     base: {},
     channel: 0,
-    message: ""
+    message: "",
+    update: false
 };
 
 function findRole(name) {
@@ -69,8 +71,9 @@ bot.on("message", message => {
         message.channel.fetchMessages({limit: 20});
     }
 
-    const parameters = message.content.split(" ");
-    const command = parameters[0].slice(prefix.length);
+    const caseParameters = message.content.split(" ");
+    const parameters = message.content.split(" ").map(x=>x.toLowerCase());
+    const command = parameters[0].slice(prefix.length).toLowerCase();
 
     const lenny = "( ͡° ͜ʖ ͡°)";
     const lennylenny = "(͡ ͡° ͜ つ ͡͡°)";
@@ -89,7 +92,7 @@ bot.on("message", message => {
         "　　　ゝ、　`（ ( ͡° ͜ʖ ͡°) ／\n" +
         "　　 　　>　 　 　,ノ\n" +
         "　　　　　∠_,,,/´”";
-    if (command === "masterLenny") {
+    if (command === "masterlenny") {
         message.delete();
         send(masterlenny);
     }
@@ -141,13 +144,23 @@ bot.on("message", message => {
     if (command === "report") {
         const user = message.mentions.users.first();
         const author = message.author;
-        state.memberInfos.find(x => x.id === author.id).fireStrike(user, text(parameters, 2));
+        state.memberInfos.find(x => x.id === author.id).fireStrike(user, text(caseParameters, 2));
     }
 
-    if (command.toLowerCase() === "serverstatus") {
+    if (command === "timetoevent"){
+        let event = moment(data.base.event.date);
+        let days = event.diff(moment())/1000/60/60/24;
+        let hours = days*24-Math.floor(days)*24;
+        let minutes = hours*60-Math.floor(hours)*60;
+        let seconds = minutes*60-Math.floor(minutes)*60;
+        send(`${Math.floor(days)} days, ${Math.floor(hours)} hours, ${Math.floor(minutes)} minutes and ${Math.floor(seconds)} seconds until the event!`);
+    }
+
+    if (command === "serverstatus") {
         if (hasRole(roles.collaborator.id)) {
             if (parameters[1] !== undefined) {
-                data.base.server.status = text(parameters, 1);
+                data.base.server.status = text(caseParameters, 1);
+                data.update = true;
             } else {
                 send(data.base.server.status);
             }
@@ -159,7 +172,7 @@ bot.on("message", message => {
     if (hasRole(roles.mod.id)) {
         if (command === "say") {
             message.delete();
-            send(text(parameters, 1));
+            send(text(caseParameters, 1));
         }
 
         if (command === "mute") {
@@ -188,7 +201,7 @@ bot.on("message", message => {
 
         if (command === "cleanup") {
             const users = message.mentions.users;
-            const cutoff = Date.now() - parseTime("3m");
+            const cutoff = Date.now() - parseTime(arguments[2]);
             const messages = message.channel.messages.filter(m =>
                 users.has(m.author.id) && m.createdTimestamp >= cutoff
             );
@@ -197,28 +210,32 @@ bot.on("message", message => {
             }
         }
 
-        if (command.toLowerCase() === "objectives") {
+        if (command === "objectives") {
             send(data.base.mods.objectives);
         }
-        if (command.toLowerCase() === "commands") {
+        if (command === "commands") {
             send(data.base.mods.commands);
         }
         if (hasRole(roles.owner.id)) {
-            if (command.toLowerCase() === "edit") {
-                if (parameters[1].toLowerCase() === "objectives") {
-                    if (parameters[2].toLowerCase() === "new") {
-                        data.base.mods.objectives.push(text(parameters, 3));
+            if (command=== "edit") {
+                if (parameters[1] === "objectives") {
+                    if (parameters[2] === "new") {
+                        data.base.mods.objectives.push(text(caseParameters, 3));
+                        data.update = true;
                     }
-                    if (parameters[2].toLowerCase() === "del") {
+                    if (parameters[2] === "del") {
                         data.base.mods.objectives.splice(Number(parameters[3]), 1);
+                        data.update = true;
                     }
                 }
-                if (parameters[1].toLowerCase() === "commands") {
-                    if (parameters[2].toLowerCase() === "new") {
-                        data.base.mods.commands.push(text(parameters, 3));
+                if (parameters[1] === "commands") {
+                    if (parameters[2] === "new") {
+                        data.base.mods.commands.push(text(caseParameters, 3));
+                        data.update = true;
                     }
-                    if (parameters[2].toLowerCase() === "del") {
+                    if (parameters[2] === "del") {
                         data.base.mods.commands.splice(Number(parameters[3]), 1);
+                        data.update = true;
                     }
                 }
             }
@@ -241,8 +258,12 @@ bot.on("message", message => {
         }
     }
 
-    data.message.delete();
-    data.channel.send(JSON.stringify(data.base));
+    if (data.update){
+        data.message.delete();
+        data.channel.send(JSON.stringify(data.base));
+        data.update = false;
+    }
+
 });
 
 bot.on("guildMemberAdd", member => {
