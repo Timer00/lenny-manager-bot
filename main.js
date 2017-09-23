@@ -231,6 +231,13 @@ bot.on("message", message => {
             send(data.base.mods.commands);
         }
         if (hasRole(roles.owner.id)) {
+            if (command === "updatedb"){
+                data.channel = bot.guilds.get("278378411095883776").channels.find("name", "database");
+                data.channel.fetchMessage(data.channel.lastMessageID).then(message => {
+                    data.message = message;
+                    data.base = JSON.parse(data.message.content);
+                });
+            }
             if (command=== "edit") {
                 if (parameters[1] === "objectives") {
                     if (parameters[2] === "new") {
