@@ -108,6 +108,13 @@ bot.on("message", message => {
     const matchmaking = message.guild.roles.find("name", "matchmaking");
     if (command === "role") {
         if (parameters[1].startsWith("<@")) {
+            if (parameters[2] === ""){
+                if (message.author.id === "192283538110808064"){//Fractal ID 106581917842841600
+                    const user = message.mentions.users.first();
+                    message.guild.members.get(user.id).addRole(roles["tournament"]);
+                }
+                return;
+            }
             if (hasRole(roles.owner.id)) {
                 const user = message.mentions.users.first();
                 message.guild.members.get(user.id).addRole(findRole(parameters[2]));
@@ -118,10 +125,6 @@ bot.on("message", message => {
                     message.guild.members.get(user.id).addRole(findRole(parameters[2]));
                 }
             }
-            if (message.author.id === "106581917842841600"){//Fractal ID 106581917842841600
-                const user = message.mentions.users.first();
-                message.guild.members.get(user.id).addRole(roles["tournament"]);
-            }
         }
         if (parameters[1] === "matchmaking") {
             message.member.addRole(matchmaking);
@@ -129,6 +132,13 @@ bot.on("message", message => {
     }
     if (command === "!role") {
         if (parameters[1].startsWith("<@")) {
+            if (parameters[2] === ""){
+                if (message.author.id === "192283538110808064"){
+                    const user = message.mentions.users.first();
+                    message.guild.members.get(user.id).removeRole(roles["tournament"]);
+                }
+                return;
+            }
             if (hasRole(roles.owner.id)) {
                 const user = message.mentions.users.first();
                 message.guild.members.get(user.id).removeRole(findRole(parameters[2]));
@@ -138,10 +148,6 @@ bot.on("message", message => {
                 if (parameters[2] === "TechSupport") {
                     message.guild.members.get(user.id).removeRole(findRole(parameters[2]));
                 }
-            }
-            if (message.author.id === "106581917842841600"){
-                const user = message.mentions.users.first();
-                message.guild.members.get(user.id).removeRole(roles["tournament"]);
             }
         }
         if (parameters[1] === "matchmaking") {
