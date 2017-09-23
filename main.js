@@ -33,7 +33,8 @@ bot.on("ready", () => {
         "muted",
         "newbie",
         "Fan",
-        "Collaborator"
+        "Collaborator",
+        "Tournament"
     ].forEach(roleName => {
         roles[toLowerInitial(roleName)] = findRole(roleName);
     });
@@ -117,13 +118,17 @@ bot.on("message", message => {
                     message.guild.members.get(user.id).addRole(findRole(parameters[2]));
                 }
             }
+            if (message.author.id === "106581917842841600"){//Fractal ID 106581917842841600
+                const user = message.mentions.users.first();
+                message.guild.members.get(user.id).addRole(roles["tournament"]);
+            }
         }
         if (parameters[1] === "matchmaking") {
             message.member.addRole(matchmaking);
         }
     }
     if (command === "!role") {
-        if (parameters[1].startsWith("@")) {
+        if (parameters[1].startsWith("<@")) {
             if (hasRole(roles.owner.id)) {
                 const user = message.mentions.users.first();
                 message.guild.members.get(user.id).removeRole(findRole(parameters[2]));
@@ -133,6 +138,10 @@ bot.on("message", message => {
                 if (parameters[2] === "TechSupport") {
                     message.guild.members.get(user.id).removeRole(findRole(parameters[2]));
                 }
+            }
+            if (message.author.id === "106581917842841600"){
+                const user = message.mentions.users.first();
+                message.guild.members.get(user.id).removeRole(roles["tournament"]);
             }
         }
         if (parameters[1] === "matchmaking") {
