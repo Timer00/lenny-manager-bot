@@ -108,7 +108,7 @@ bot.on("message", message => {
     const matchmaking = message.guild.roles.find("name", "matchmaking");
     if (command === "role") {
         if (parameters[1].startsWith("<@")) {
-            if (parameters[2] === ""){
+            if (typeof parameters[2] === "undefined"){
                 if (message.author.id === "192283538110808064"){//Fractal ID 106581917842841600
                     const user = message.mentions.users.first();
                     message.guild.members.get(user.id).addRole(roles["tournament"]);
@@ -132,7 +132,7 @@ bot.on("message", message => {
     }
     if (command === "!role") {
         if (parameters[1].startsWith("<@")) {
-            if (parameters[2] === ""){
+            if (typeof parameters[2] === "undefined"){
                 if (message.author.id === "192283538110808064"){
                     const user = message.mentions.users.first();
                     message.guild.members.get(user.id).removeRole(roles["tournament"]);
