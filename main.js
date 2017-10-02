@@ -1,7 +1,7 @@
 const bot = require("./bot-client");
 const moment = require('moment');
-const token = process.env["LENNY_TOKEN"];
-//const token = require("./secret.json").token;
+//const token = process.env["LENNY_TOKEN"];
+const token = require("./secret.json").token;
 const MemberInfo = require("./member-info");
 const state = require("./state");
 const {parseTime, unindent, toLowerInitial} = require("./util");
@@ -31,7 +31,6 @@ bot.on("ready", () => {
         "Owner",
         "TechSupport",
         "muted",
-        "newbie",
         "Fan",
         "Collaborator",
         "Tournament"
@@ -40,8 +39,9 @@ bot.on("ready", () => {
     });
 
     bot.guilds.get("278378411095883776").members.forEach(member => {
-        [roles.muted, roles.newbie].forEach(role => {
+        [roles.muted].forEach(role => {
             if (member.roles.has(role.id)) {
+                console.log(role);
                 member.removeRole(role);
             }
         });
@@ -290,7 +290,6 @@ bot.on("message", message => {
 bot.on("guildMemberAdd", member => {
     // Add Fan role
     const role = member.guild.roles.find("name", "Fan");
-    const newbie = member.guild.roles.find("name", "newbie");
     if (role) {
         member.addRole(role);
         //member.addRole(newbie);
