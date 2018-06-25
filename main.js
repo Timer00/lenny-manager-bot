@@ -321,3 +321,5 @@ bot.login(token);
 
 //Bot Evil Sneak Plan
 // bot.guilds.find(x=>x.name ==="DevChat").id;
+
+// Testy McTestFace
