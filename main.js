@@ -304,14 +304,15 @@ bot.on("guildMemberAdd", member => {
     const channel = member.guild.channels.find("name", "lenny");
     const infoc = member.guild.channels.find("name", "information");
     const helpc = member.guild.channels.find("name", "help");
-    const updc = member.guild.channels.find("name", "updates");
+    const news = member.guild.channels.find("name", "news");
     const faqc = member.guild.channels.find("name", "faq");
+    const mm = member.guild.channels.find("name", "matchmaking")
     if (channel) {
         channel.send(
             unindent`Welcome, ${member}!
-                |Please read ${infoc} , ${faqc} and ${updc} to better understand the project and it's current situation. The english installation instructions are located here: 
-http://steamcommunity.com/sharedfiles/filedetails/?id=904845972
- If you need any help feel free to use the ${helpc} channel.`
+                |Please read ${infoc} , ${faqc} and ${news} to better understand the project and it's current situation. The english installation instructions can be found here in
+${infoc}. If you need any help feel free to use the ${helpc} channel. For finding people to play with please use ${mm}. To gain the matchmaking role and be able to use the tag please 
+type '>role matchmaking' into ${channel}.`
         );
     }
     //You will be muted for 5 minutes on all channels except #help, feel free to ask questions there, please use this time to read #information , #faq and #updates . The english installation instructions are located here: http://steamcommunity.com/sharedfiles/filedetails/?id=904845972 - More languages are avaliable at #information.`
