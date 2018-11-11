@@ -6,6 +6,7 @@ const MemberInfo = require("./member-info");
 const state = require("./state");
 const {parseTime, unindent, toLowerInitial} = require("./util");
 const roles = state.roles;
+const { servers } = require("./mww-reborn-api")
 
 data = {
     base: {},
@@ -181,6 +182,31 @@ bot.on("message", message => {
         } else {
             send(data.base.server.status);
         }
+    }
+
+    if (command === "servers") {
+        servers(function(response) {
+            const formatServerList = function(serverList) {
+                if (serverList.length === 0) {
+                    return "Couldn't find any MWW servers... try again later."
+                }
+
+                var message = '';
+
+                serverList.forEach(function(server) {
+                    var steamLink = 'steam://' + server.server_addr;
+                    var serverText = [server.name, steamLink].join(': ');
+                    if (server.players > 0) {
+                        serverText += ` (${server.players} players)`;
+                    }
+                    message += serverText + '\n';
+                })
+
+                return message;
+            }
+
+            send(formatServerList(response));
+        })
     }
 
     if (hasRole(roles.mod.id)) {
