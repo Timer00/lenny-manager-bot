@@ -194,7 +194,7 @@ bot.on("message", message => {
                 var message = '';
 
                 serverList.forEach(function(server) {
-                    var steamLink = 'steam://' + server.server_addr;
+                    var steamLink = 'steam://connect/' + server.server_addr;
                     var serverText = [server.name, steamLink].join(': ');
                     if (server.players > 0) {
                         serverText += ` (${server.players} players)`;
